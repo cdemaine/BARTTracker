@@ -6,6 +6,8 @@
 # Added NeoPixel direct drive
 # Added support for different densities of lights
 # Revised timing scheme and configuration file
+# Fixed last-pixel one-off copy problem 122015
+# Adjusted sleep delay to increase accuracy 122015
 
 # To do:
 
@@ -123,6 +125,17 @@ from bart_api import BartApi
 
 bart = BartApi()
 
+# The main loop - so good it never ends
+
+# The system is based on ticks, which are moves of the "trains" down the LED strip
+# The duration of a tick is the length, in time, of the strip divided by the number of LEDs
+# Example:  60 minutes = 3600 seconds "Length"
+#           3600 seconds / 144 pixels = 25 seconds per tick
+
+# On the first tick clean the display and fetch BART and MUNI data
+# 
+
+
 while True:
 
 	for tick in range(0,bartrefresh):
@@ -146,13 +159,14 @@ while True:
 					strip.setPixelColor(pixel, Color(output[pixel][0], output[pixel][1], output[pixel][2]))
 					strip.show()
 
-			time.sleep(10)
+			time.sleep(6) # Yes, this is a magic number
 			print 'z'
 
 			if (i+1)%(4) == 0:
 				# Done waiting, move trains one pixel
 				print 'moving'
 				for j in range(0, numLEDs -2):
-		 			pixels[j] = pixels[j+1]				
+		 			pixels[j] = pixels[j+1]	
+		 		pixels[numLEDs-1] = (0,0,0)			
 
 
